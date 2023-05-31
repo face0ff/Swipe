@@ -19,7 +19,8 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import routers
 
-from user_app.views import NotariesViewSet, UserViewSet, UserAdminViewSet, OwnerViewSet
+from user_app.views import NotariesViewSet, UserViewSet, UserAdminViewSet, OwnerViewSet, UserRegisterViewSet, \
+    OwnerRegisterViewSet
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -29,9 +30,11 @@ from rest_framework_simplejwt.views import (
 
 router = routers.SimpleRouter()
 router.register(r'notaries', NotariesViewSet)
-router.register(r'create_user', UserAdminViewSet)
-router.register(r'update_user', UserViewSet)
-router.register(r'update_owner', OwnerViewSet)
+router.register(r'user_create', UserAdminViewSet)
+router.register(r'user_update', UserViewSet)
+router.register(r'owner_update', OwnerViewSet)
+router.register(r'user_register', UserRegisterViewSet)
+router.register(r'owner_register', OwnerRegisterViewSet)
 
 urlpatterns = [
 
@@ -47,7 +50,7 @@ urlpatterns = [
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('api/auth/registration/verify-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
-    # path('api/auth/', include('allauth.urls')),
+    path('api/auth/', include('allauth.urls')),
 
     path('api/v1/', include(router.urls)),
 

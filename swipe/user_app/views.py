@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAdminUser
 
 from .models import Notaries, User
 from .permissions import AllWhoVerified
-from .serializers import NotariesSerializer, UserSerializer, UserAdminSerializer, OwnerSerializer
+from .serializers import NotariesSerializer, UserSerializer, UserAdminSerializer, OwnerSerializer, \
+    CustomRegisterSerializer
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -28,11 +29,23 @@ class UserAdminViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ['put', 'patch']
+    http_method_names = ['put']
 
 
 @extend_schema(tags=['OwnerUpdate'])
 class OwnerViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = OwnerSerializer
-    http_method_names = ['put', 'patch']
+    http_method_names = ['put']
+
+@extend_schema(tags=['UserRegister'])
+class UserRegisterViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = CustomRegisterSerializer
+    http_method_names = ['post']
+
+@extend_schema(tags=['OwnerRegister'])
+class OwnerRegisterViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = CustomRegisterSerializer
+    http_method_names = ['post']

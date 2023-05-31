@@ -9,7 +9,9 @@ class Subscription(models.Model):
 
 
 class User(AbstractUser):
-
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+    email = models.EmailField(unique=True)
     avatar = models.ImageField('Аватар', upload_to='img/avatar/')
     telephone = models.CharField('Телефон', max_length=20)
     agent_first_name = models.CharField('Имя', max_length=32)

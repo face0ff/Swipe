@@ -1,16 +1,50 @@
 import base64
-from allauth.account.models import EmailAddress
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 from .models import Notaries, User
-from dj_rest_auth.registration.serializers import RegisterSerializer
+from allauth.account import app_settings as allauth_settings
+from allauth.account.adapter import get_adapter
+from allauth.account.models import EmailAddress
 from dj_rest_auth.serializers import UserDetailsSerializer, LoginSerializer
 
 
 class CustomLoginSerializer(LoginSerializer):
     username = None  # Отключаем поле username
 
+class CustomRegisterSerializer(serializers.ModelSerializer):
+    password1 = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
+    class Meta:
+        model = User
+        fields = ('email', 'password1', 'password2')
+
+    def validate(self, attrs):
+        if attrs['password1'] != attrs['password2']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return attrs
+
+    def create(self, validated_data):
+        password = validated_data['password1']
+        hashed_password = make_password(password)
+        user = User.objects.create_user(email=validated_data['email'], username=validated_data['email'])
+        user.password = hashed_password
+        action = self.context['request'].path.split('/')[-2]
+        if action == 'user_register':
+            user.role = 'user'
+        elif action == 'owner_register':
+            user.role = 'owner'
+        user.save()
+
+        if allauth_settings.EMAIL_VERIFICATION != allauth_settings.EmailVerificationMethod.MANDATORY:
+            email = EmailAddress.objects.create(
+                user_id=user.id,
+                email=user.email,
+                verified=False,
+                primary=True)
+            email.send_confirmation(self.context['request'])
+
+        return user
 
 
 class NotariesSerializer(serializers.ModelSerializer):
