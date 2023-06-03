@@ -1,11 +1,12 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets
-from rest_framework.permissions import IsAdminUser
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404, UpdateAPIView
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from .models import Notaries, User
-from .permissions import AllWhoVerified
-from .serializers import NotariesSerializer, UserSerializer, UserAdminSerializer, OwnerSerializer, \
-    CustomRegisterSerializer
+from .models import Notaries, User, Message
+from .permissions import AllWhoVerified, IsOwnerOrReadOnly, IsOwner, IsUser, IsManager
+from .serializers import *
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -16,6 +17,43 @@ class NotariesViewSet(viewsets.ModelViewSet):
     queryset = Notaries.objects.all()
     serializer_class = NotariesSerializer
 
+@extend_schema(tags=['Message'])
+class BaseMessage(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = (IsAuthenticated,)
+
+
+
+class MessageViewSet(BaseMessage):
+    http_method_names = ['get', 'post', 'delete']
+    def get_queryset(self):
+        user = self.request.user
+        return Message.objects.filter(sender=user)
+
+class MessageUserGet(BaseMessage):
+    http_method_names = ['get']
+    def get_queryset(self):
+        user = self.kwargs['pk']
+        return Message.objects.filter(sender=user)
+
+
+
+@extend_schema(tags=['ManagerUserView'])
+class ManagerUserListViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = ManagerUserListSerializer
+    http_method_names = ['get']
+    permission_classes = (IsManager,)
+
+
+@extend_schema(tags=['UserOwner'])
+class BlackListUpdate(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = BlackListSerializer
+    http_method_names = ['put']
+    permission_classes = (IsManager,)
+
 
 @extend_schema(tags=['AdminCreate'])
 class UserAdminViewSet(viewsets.ModelViewSet):
@@ -24,28 +62,47 @@ class UserAdminViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAdminUser,)
 
-
-@extend_schema(tags=['UserUpdate'])
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    http_method_names = ['put']
-
-
-@extend_schema(tags=['OwnerUpdate'])
-class OwnerViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = OwnerSerializer
-    http_method_names = ['put']
-
-@extend_schema(tags=['UserRegister'])
+@extend_schema(tags=['UserOwner'])
 class UserRegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomRegisterSerializer
     http_method_names = ['post']
 
-@extend_schema(tags=['OwnerRegister'])
+@extend_schema(tags=['UserOwner'])
 class OwnerRegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomRegisterSerializer
     http_method_names = ['post']
+
+@extend_schema(tags=['UserOwner'])
+class BaseViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+
+    def get_object(self):
+        user = self.request.user
+        obj = get_object_or_404(User, id=user.id)
+        self.check_object_permissions(self.request, obj)
+        return obj
+    @action(detail=False, methods=['put'])
+    def user_update(self, request):
+        user = self.request.user
+        data = request.data
+        data['id'] = user.id
+        serializer = self.get_serializer(user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
+
+
+class UserViewSet(BaseViewSet):
+    serializer_class = UserSerializer
+    permission_classes = (IsUser,)
+
+
+class OwnerViewSet(BaseViewSet):
+    serializer_class = OwnerSerializer
+    permission_classes = (IsOwner,)
+
+
+

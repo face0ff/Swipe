@@ -2,7 +2,7 @@ import base64
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from .models import Notaries, User
+from .models import Notaries, User, Message
 from allauth.account import app_settings as allauth_settings
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
@@ -17,7 +17,7 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
     class Meta:
         model = User
-        fields = ('email', 'password1', 'password2')
+        fields = ('email', 'password1', 'password2', 'first_name', 'last_name')
 
     def validate(self, attrs):
         if attrs['password1'] != attrs['password2']:
@@ -27,7 +27,8 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data['password1']
         hashed_password = make_password(password)
-        user = User.objects.create_user(email=validated_data['email'], username=validated_data['email'])
+        user = User.objects.create_user(email=validated_data['email'], username=validated_data['email'],
+                                        first_name=validated_data['first_name'], last_name=validated_data['last_name'])
         user.password = hashed_password
         action = self.context['request'].path.split('/')[-2]
         if action == 'user_register':
@@ -53,10 +54,33 @@ class NotariesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ('text',)
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        sender = User.objects.get(id=user.id)
+        receiver = User.objects.get(role='manager')
+        message = Message.objects.create(
+            text=validated_data['text'],
+            sender=sender,
+            receiver=receiver
+        )
+        return message
+
+    def __delete__(self, instance):
+        if instance == self.context['request'].user:
+            return instance
+
+
+
+
 class UserAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('email', 'password', 'role')
 
     def create(self, validated_data):
         print(self.validated_data)
@@ -65,9 +89,10 @@ class UserAdminSerializer(serializers.ModelSerializer):
             password = validated_data['password']
             hashed_password = make_password(password)
             user = User.objects.create(
-                username=validated_data['username'],
+                username=validated_data['email'],
                 email=validated_data['email'],
                 password=hashed_password,
+                role=validated_data['role'],
             )
             email = EmailAddress.objects.create(
                 user_id=user.id,
@@ -78,30 +103,51 @@ class UserAdminSerializer(serializers.ModelSerializer):
             return user
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = "__all__"
-
-
-class OwnerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username', 'avatar', 'email', 'password', 'last_name', 'first_name')
+class BaseUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
 
     def update(self, instance, validated_data):
-        print('23423234234')
-        avatar_data = validated_data.get('avatar')
-        print(avatar_data)
-        if avatar_data:
-            decoded_image = base64.b64decode(avatar_data)
-            avatar_file = ContentFile(decoded_image)
-            avatar_file.name = 'avatar.jpg'
-            instance.avatar.save('avatar.jpg', avatar_file, save=True)
-        instance.role = 'owner'
-
-        instance.save()
+        password = validated_data.get('password')
+        if password:
+            hashed_password = make_password(password)
+            validated_data['password'] = hashed_password
+        instance = super().update(instance, validated_data)
         return instance
 
-    def partial_update(self, instance, validated_data):
-        return self.update(instance, validated_data)
+
+class UserSerializer(BaseUserSerializer):
+    class Meta:
+        model = User
+        fields = ('avatar', 'email', 'password', 'last_name', 'first_name', 'telephone', 'notification', 'to_agent',
+                  'agent_first_name', 'agent_last_name', 'agent_telephone', 'agent_email')
+
+
+class OwnerSerializer(BaseUserSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'password', 'last_name', 'first_name')
+
+class ManagerUserListSerializer(BaseUserSerializer):
+    class Meta:
+        model = User
+        fields = ('last_name', 'first_name', 'telephone', 'email', 'black_list')
+
+class BlackListSerializer(BaseUserSerializer):
+    class Meta:
+        model = User
+        fields = ()
+
+    def update(self, instance, validated_data):
+        if not instance.black_list:
+            validated_data['black_list'] = True
+        else:
+            validated_data['black_list'] = False
+        instance = super().update(instance, validated_data)
+        return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['message'] = 'Операция прошла успешно'
+        return data
+
+

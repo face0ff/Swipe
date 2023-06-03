@@ -11,3 +11,25 @@ class AllWhoVerified(permissions.BasePermission):
             except EmailAddress.DoesNotExist:
                 return False
         return False
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if obj.id == request.user.id and request.user.role == request.path.split('/')[3].split('_')[0]:
+            return True
+        return False
+
+
+class IsOwner(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == 'owner'
+
+class IsUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == 'user'
+
+class IsManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == 'manager'
