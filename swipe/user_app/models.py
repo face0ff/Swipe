@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Subscription(models.Model):
-    paid_by = models.DateTimeField('Дата', auto_now=True)
+    paid_by = models.DateField('Дата')
     auto_renewal = models.BooleanField(default=True)
 
 

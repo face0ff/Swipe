@@ -1,16 +1,56 @@
+from django.http import Http404
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404, UpdateAPIView
+from rest_framework.generics import get_object_or_404, UpdateAPIView, ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
-from .models import Notaries, User, Message
+from .models import Notaries, User, Message, Subscription
 from .permissions import AllWhoVerified, IsOwnerOrReadOnly, IsOwner, IsUser, IsManager
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 
+
+
+@extend_schema(tags=['Subscription'])
+class SubscriptionGet(ListAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        user = self.request.user
+        return Subscription.objects.filter(user__id=user.id)
+
+@extend_schema(tags=['Subscription'])
+class SubscriptionCreate(CreateAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    http_method_names = ['post']
+
+@extend_schema(tags=['Subscription'])
+class SubscriptionUpdate(UpdateAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = SubscriptionSerializer
+    http_method_names = ['put']
+
+    def get_object(self):
+        user = self.request.user
+        subscription = user.subscription  # Получение подписки связанной с пользователем
+        if not subscription:
+            raise Http404('Подписка не найдена.')
+        return subscription
+
+    @action(detail=False, methods=['put'])
+    def subscription_update(self, request):
+        subscription = self.get_object()
+        serializer = self.get_serializer(subscription, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @extend_schema(tags=['Notaries'])
 class NotariesViewSet(viewsets.ModelViewSet):
@@ -47,7 +87,7 @@ class ManagerUserListViewSet(viewsets.ModelViewSet):
     permission_classes = (IsManager,)
 
 
-@extend_schema(tags=['UserOwner'])
+@extend_schema(tags=['ManagerUserView'])
 class BlackListUpdate(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = BlackListSerializer

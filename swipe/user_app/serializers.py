@@ -1,12 +1,17 @@
 import base64
+import datetime
+from datetime import timedelta
+
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from .models import Notaries, User, Message
+from .models import Notaries, User, Message, Subscription
 from allauth.account import app_settings as allauth_settings
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
 from dj_rest_auth.serializers import UserDetailsSerializer, LoginSerializer
+
+from .tasks import test
 
 
 class CustomLoginSerializer(LoginSerializer):
@@ -149,5 +154,27 @@ class BlackListSerializer(BaseUserSerializer):
         data = super().to_representation(instance)
         data['message'] = 'Операция прошла успешно'
         return data
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ('paid_by', 'auto_renewal')
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if user.subscription:
+            raise serializers.ValidationError("Подписка уже существует.")
+        paid_by = datetime.date.today() + timedelta(days=5)
+        print(paid_by)
+        subscription = Subscription.objects.create(
+            auto_renewal=validated_data['auto_renewal'],
+            paid_by=paid_by
+        )
+        user = User.objects.get(id=user.id)
+        user.subscription = subscription
+        user.save()
+        return subscription
+
+
 
 

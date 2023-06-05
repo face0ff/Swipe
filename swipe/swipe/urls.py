@@ -15,6 +15,7 @@ router.register(r'owner_register', OwnerRegisterViewSet)
 router.register(r'user_list', ManagerUserListViewSet)
 router.register(r'message', MessageViewSet)
 
+
 urlpatterns = [
 
 
@@ -31,6 +32,11 @@ urlpatterns = [
     path('api/v1/user_update/', UserViewSet.as_view({'put': 'update'}), name='user_update'),
     path('api/v1/owner_update/', OwnerViewSet.as_view({'put': 'update'}), name='owner_update'),
     path('api/v1/user_list/<int:pk>/black_list ', BlackListUpdate.as_view(), name='black_list_update'),
-    path('api/v1/message/<int:pk>/user', MessageUserGet.as_view({'get': 'list'}), name='Message')
+    path('api/v1/message/<int:pk>/user', MessageUserGet.as_view({'get': 'list'}), name='Message'),
+    path('api/v1/subscription/', SubscriptionGet.as_view(), name='Subscription'),
+    path('api/v1/subscription_create/', SubscriptionCreate.as_view(), name='Subscription'),
+    path('api/v1/subscription_update/', SubscriptionUpdate.as_view(), name='Subscription'),
+
+
 
 ]
