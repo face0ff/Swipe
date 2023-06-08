@@ -3,9 +3,9 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, UpdateAPIView, ListAPIView, CreateAPIView
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 
-from .models import Notaries, User, Message, Subscription
+from .models import Notaries, User, Message, Subscription, UserRequest
 from .permissions import AllWhoVerified, IsOwnerOrReadOnly, IsOwner, IsUser, IsManager
 from .serializers import *
 from rest_framework.views import APIView
@@ -61,7 +61,6 @@ class NotariesViewSet(viewsets.ModelViewSet):
 class BaseMessage(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
-    permission_classes = (IsAuthenticated,)
 
 
 
@@ -77,6 +76,13 @@ class MessageUserGet(BaseMessage):
         user = self.kwargs['pk']
         return Message.objects.filter(sender=user)
 
+
+@extend_schema(tags=['ManagerUserView'])
+class UserRequestList(ListAPIView):
+    queryset = UserRequest.objects.all()
+    serializer_class = UserRequestSerializer
+    http_method_names = ['get']
+    permission_classes = (IsManager,)
 
 
 @extend_schema(tags=['ManagerUserView'])
@@ -107,12 +113,14 @@ class UserRegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomRegisterSerializer
     http_method_names = ['post']
+    permission_classes = (AllowAny,)
 
 @extend_schema(tags=['UserOwner'])
 class OwnerRegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomRegisterSerializer
     http_method_names = ['post']
+    permission_classes = (AllowAny,)
 
 @extend_schema(tags=['UserOwner'])
 class BaseViewSet(viewsets.ModelViewSet):

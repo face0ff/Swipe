@@ -1,8 +1,8 @@
 from django.db import models
 
 
-class Checherboard(models.Model):
-    number = models.DecimalField('Номер', max_digits=3, decimal_places=0)
+class Checkerboard(models.Model):
+    number = models.DecimalField('Номер', max_digits=3, decimal_places=0, null=True)
     infrastructure_id = models.OneToOneField('infrastructures_app.Infrastructure', on_delete=models.CASCADE)
 
 

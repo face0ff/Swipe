@@ -1,11 +1,13 @@
-import base64
 import datetime
 from datetime import timedelta
 
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from .models import Notaries, User, Message, Subscription
+
+from checkerboard_app.models import Checkerboard
+from infrastructures_app.models import Infrastructure
+from .models import Notaries, User, Message, Subscription, UserRequest
 from allauth.account import app_settings as allauth_settings
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
@@ -40,6 +42,10 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
             user.role = 'user'
         elif action == 'owner_register':
             user.role = 'owner'
+            infrastructure = Infrastructure.objects.create(owner=user)
+            checkerboard = Checkerboard.objects.create(infrastructure_id=infrastructure)
+            checkerboard.save()
+            infrastructure.save()
         user.save()
 
         if allauth_settings.EMAIL_VERIFICATION != allauth_settings.EmailVerificationMethod.MANDATORY:
@@ -56,6 +62,11 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
 class NotariesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notaries
+        fields = "__all__"
+
+class UserRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRequest
         fields = "__all__"
 
 

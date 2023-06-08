@@ -4,6 +4,7 @@ from django.db import models
 
 from checkerboard_app.models import Riser, Floor
 from promotion_app.models import Promotion
+from user_app.models import User
 
 
 # from swipe.promotion_app.models import Promotion
@@ -12,7 +13,7 @@ from promotion_app.models import Promotion
 # Create your models here.
 
 class Infrastructure(models.Model):
-    address = models.CharField('Адрес', max_length=64)
+    address = models.CharField('Адрес', max_length=64, null=True)
     STATUS_CHOICE = (
         ('apart', 'Квартира'),
         ('house', 'Дом')
@@ -33,8 +34,8 @@ class Infrastructure(models.Model):
         ('open', 'Открытая')
     )
     territory = models.CharField('Территория', choices=TERRITORY_CHOICE, max_length=20, default='close')
-    distance = models.DecimalField('Дистанция', max_digits=10, decimal_places=0)
-    celling_height = models.DecimalField('Высота потолков', max_digits=1, decimal_places=0)
+    distance = models.DecimalField('Дистанция', max_digits=10, decimal_places=0, null=True)
+    celling_height = models.DecimalField('Высота потолков', max_digits=1, decimal_places=0, null=True)
     ELECTRICITY_CHOICE = (
         ('yes', 'Подключено'),
         ('not', 'Отключено')
@@ -61,6 +62,7 @@ class Infrastructure(models.Model):
     )
     watter_supply = models.CharField('Водоснабжение', choices=WATTER_CHOICE, max_length=20, default='central')
     map = models.TextField('Карта', null=True, blank=True)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
 
 class Apartment(models.Model):
@@ -140,6 +142,7 @@ class Apartment(models.Model):
     floors_id = models.ForeignKey(Floor, on_delete=models.CASCADE)
     schema = models.ImageField('Схема', upload_to='img/schema/')
     REJECTION_CHOICE = (
+        ('ok', 'Все ок'),
         ('foto', 'Фото'),
         ('price', 'Цена'),
         ('description', 'Описание'),
