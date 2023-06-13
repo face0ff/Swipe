@@ -13,6 +13,7 @@ from user_app.models import User
 # Create your models here.
 
 class Infrastructure(models.Model):
+    photo = models.ImageField('Главное фото', null=True)
     address = models.CharField('Адрес', max_length=64, null=True)
     STATUS_CHOICE = (
         ('apart', 'Квартира'),
@@ -35,7 +36,7 @@ class Infrastructure(models.Model):
     )
     territory = models.CharField('Территория', choices=TERRITORY_CHOICE, max_length=20, default='close')
     distance = models.DecimalField('Дистанция', max_digits=10, decimal_places=0, null=True)
-    celling_height = models.DecimalField('Высота потолков', max_digits=1, decimal_places=0, null=True)
+    celling_height = models.DecimalField('Высота потолков', max_digits=10, decimal_places=1, null=True)
     ELECTRICITY_CHOICE = (
         ('yes', 'Подключено'),
         ('not', 'Отключено')
@@ -77,11 +78,11 @@ class Apartment(models.Model):
         ('monolith', 'Монолит')
     )
     technology = models.CharField('Технология', choices=TECHNOLOGY_CHOICE, max_length=20, default='panel')
-    STATUS_CHOICE = (
+    APART_STATUS = (
         ('rented', 'Сдан'),
         ('vacant', 'Не сдан')
     )
-    status = models.CharField('Статус', choices=STATUS_CHOICE, max_length=20, default='rented')
+    apart_status = models.CharField('Статус', choices=APART_STATUS, max_length=20, default='rented')
     QUANTITY_CHOICE = (
         ('1', '1-комнатная'),
         ('2', '2-комнатная'),
@@ -107,16 +108,16 @@ class Apartment(models.Model):
         ('penthouse', 'Пентхаус')
     )
     plane = models.CharField('Планировка', choices=PLANE_CHOICE, max_length=20, default='open')
-    area = models.DecimalField('Площадь', decimal_places=1, max_digits=3)
-    kitchen_area = models.DecimalField('Площадь кухни', decimal_places=1, max_digits=3)
+    area = models.DecimalField('Площадь', decimal_places=1, max_digits=3, null=True)
+    kitchen_area = models.DecimalField('Площадь кухни', decimal_places=1, max_digits=3, null=True)
     BALCONY_CHOICE = (
         ('yes', 'Да'),
         ('not', 'Нет')
     )
     balcony = models.CharField('Планировка', choices=BALCONY_CHOICE, max_length=20, default='yes')
     HEATING_CHOICE = (
-        ('electro', 'Электрическое'),
-        ('gas', 'Газовое')
+        ('electro_heating', 'Электрическое'),
+        ('gas_heating', 'Газовое')
     )
     heating = models.CharField('Газ', choices=HEATING_CHOICE, max_length=20, default='yes')
     PAY_CHOICE = (
@@ -127,37 +128,37 @@ class Apartment(models.Model):
         ('not', 'Неважно')
     )
     payment = models.CharField('Варианты расчета', choices=PAY_CHOICE, max_length=20, blank=True)
-    commission = models.DecimalField('Коммисия агенту', decimal_places=1, max_digits=10)
+    commission = models.DecimalField('Коммисия агенту', decimal_places=1, max_digits=10, null=True)
     COMMUNICATION_CHOICE = (
         ('call', 'Звонок'),
         ('message', 'Сообщение'),
         ('two', 'Звонок+Сообщение')
     )
     communication = models.CharField('Способ связи', choices=COMMUNICATION_CHOICE, max_length=20, default='call')
-    apart_description = models.TextField('Описание', max_length=400)
-    price = models.DecimalField('Цена', max_digits=10, decimal_places=2)
-    promotion = models.OneToOneField(Promotion, on_delete=models.CASCADE)
+    apart_description = models.TextField('Описание', max_length=400, null=True)
+    price = models.DecimalField('Цена', max_digits=10, decimal_places=2, null=True)
+    promotion = models.OneToOneField(Promotion, on_delete=models.CASCADE, null=True)
     infrastructure_id = models.ForeignKey('Infrastructure', on_delete=models.CASCADE)
     riser_id = models.ForeignKey(Riser, on_delete=models.CASCADE)
-    floors_id = models.ForeignKey(Floor, on_delete=models.CASCADE)
+    floor_id = models.ForeignKey(Floor, on_delete=models.CASCADE)
     schema = models.ImageField('Схема', upload_to='img/schema/')
+    accept = models.BooleanField('Одобренно', default=False)
     REJECTION_CHOICE = (
-        ('ok', 'Все ок'),
         ('foto', 'Фото'),
         ('price', 'Цена'),
         ('description', 'Описание'),
     )
-    rejection = models.CharField('Причины отклонения', choices=REJECTION_CHOICE, max_length=20, blank=True)
+    rejection = models.CharField('Причины отклонения', choices=REJECTION_CHOICE, max_length=20, default="")
 
 
 class Image(models.Model):
     image = models.ImageField('', upload_to='img/image/')
-    infrastructure_id = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
+    infrastructure_id = models.ForeignKey(Infrastructure, on_delete=models.CASCADE, related_name='imageInfrastructure')
 
 
 class ImageApart(models.Model):
     image = models.ImageField('', upload_to='img/image/')
-    apartment_id = models.ForeignKey(Apartment, on_delete=models.CASCADE)
+    apartment_id = models.ForeignKey(Apartment, on_delete=models.CASCADE, related_name='imageApart')
 
 
 class Docs(models.Model):
@@ -173,10 +174,10 @@ class News(models.Model):
 
 
 class Corp(models.Model):
-    number = models.DecimalField('Корпус номер', max_digits=3, decimal_places=0)
+    number = models.DecimalField('Корпус номер', max_digits=3, decimal_places=0, default=1)
     infrastructure_id = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
 
 
 class Section(models.Model):
-    number = models.DecimalField('Секция номер', max_digits=3, decimal_places=0)
+    number = models.DecimalField('Секция номер', max_digits=3, decimal_places=0, default=1)
     corp_id = models.ForeignKey(Corp, on_delete=models.CASCADE)

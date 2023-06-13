@@ -64,7 +64,8 @@ class NotariesSerializer(serializers.ModelSerializer):
         model = Notaries
         fields = "__all__"
 
-class UserRequestSerializer(serializers.ModelSerializer):
+
+class UserRequestsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRequest
         fields = "__all__"

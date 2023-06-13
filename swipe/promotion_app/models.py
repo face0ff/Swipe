@@ -22,6 +22,6 @@ class Promotion(models.Model):
     raise_up = models.BooleanField('Поднять', default=False)
     turbo = models.BooleanField('Турбо', default=False)
     date = models.DateField('Дата', auto_now=True)
-    payday = models.DecimalField('Цена', max_digits=3, decimal_places=2)
+    payday = models.DecimalField('Цена', max_digits=3, decimal_places=2, default=0)
     activ = models.BooleanField(default=False)
 

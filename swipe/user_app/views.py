@@ -4,9 +4,7 @@ from rest_framework import generics, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, UpdateAPIView, ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
-
-from .models import Notaries, User, Message, Subscription, UserRequest
-from .permissions import AllWhoVerified, IsOwnerOrReadOnly, IsOwner, IsUser, IsManager
+from .permissions import IsOwner, IsUser, IsManager
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -77,10 +75,13 @@ class MessageUserGet(BaseMessage):
         return Message.objects.filter(sender=user)
 
 
+
+
+
 @extend_schema(tags=['ManagerUserView'])
 class UserRequestList(ListAPIView):
     queryset = UserRequest.objects.all()
-    serializer_class = UserRequestSerializer
+    serializer_class = UserRequestsSerializer
     http_method_names = ['get']
     permission_classes = (IsManager,)
 

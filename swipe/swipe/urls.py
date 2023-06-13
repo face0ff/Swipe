@@ -4,11 +4,13 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import routers
 
-from checkerboard_app.views import CheckerboardList, CheckerboardUpdate, FloorViewSet, FloorList
+from checkerboard_app.views import CheckerboardList, CheckerboardUpdate, FloorViewSet, FloorList, RiserViewSet, \
+    RiserList
 from filters_app.views import FiltersViewSet
-from infrastructures_app.views import CorpViewSet, CorpCreate, SectionViewSet, CorpList, SectionList
+from infrastructures_app.views import *
 from promotion_app.views import *
 from user_app.views import *
+
 
 
 router = routers.SimpleRouter()
@@ -20,8 +22,12 @@ router.register(r'user_list', ManagerUserListViewSet)
 router.register(r'message', MessageViewSet)
 router.register(r'filter', FiltersViewSet)
 router.register(r'floor', FloorViewSet)
+router.register(r'riser', RiserViewSet)
 router.register(r'corp', CorpViewSet)
 router.register(r'section', SectionViewSet)
+router.register(r'infrastructure', InfrastructureViewSet)
+router.register(r'apartment', ApartmentViewSet)
+
 
 
 urlpatterns = [
@@ -61,6 +67,14 @@ urlpatterns = [
     path('api/v1/section/list', SectionList.as_view(), name='section_list'),
 
     path('api/v1/floor/list', FloorList.as_view(), name='floor_list'),
+    path('api/v1/riser/list', RiserList.as_view(), name='riser_list'),
+
+    # path('api/v1/apartments/user/', ApartmentViewSet.as_view({'get': 'list'}),
+    #      name='user_apartment_list'),
+    # path('api/v1/apartments/user/<int:pk>/', ApartmentViewSet.as_view({'get': 'retrieve'}),
+    #      name='user_apartment_detail'),
+
+
 
 
 

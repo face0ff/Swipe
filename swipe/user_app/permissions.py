@@ -1,43 +1,30 @@
 from allauth.account.models import EmailAddress
 from rest_framework import permissions
 
-from checkerboard_app.models import Floor
-from infrastructures_app.models import Corp, Section
+from checkerboard_app.models import Floor, Riser
+from infrastructures_app.models import Corp, Section, Infrastructure, Apartment
 
 
-class AllWhoVerified(permissions.BasePermission):
+
+class IsOwner(permissions.IsAuthenticated):
     def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            try:
-                email = EmailAddress.objects.get(user=request.user)
-                return email.verified
-            except EmailAddress.DoesNotExist:
-                return False
-        return False
-
-
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
+        if request.user.is_authenticated and request.user.role == 'owner':
             return True
-        if obj.id == request.user.id and request.user.role == request.path.split('/')[3].split('_')[0]:
+
+
+class IsUser(permissions.IsAuthenticated):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated and request.user.role == 'user':
             return True
-        return False
 
-
-class IsOwner(permissions.BasePermission):
+class IsManager(permissions.IsAuthenticated):
     def has_permission(self, request, view):
-        return request.user.role == 'owner'
+        if request.user.is_authenticated and request.user.role == 'manager':
+            return True
 
-class IsUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.role == 'user'
 
-class IsManager(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.role == 'manager'
 
-class IsManagerOrOwner(permissions.BasePermission):
+class IsManagerOrOwner(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Corp):
             user_corps = request.user.infrastructure.corp_set.all()
@@ -46,9 +33,6 @@ class IsManagerOrOwner(permissions.BasePermission):
             return False
         if isinstance(obj, Section):
             user_corps = request.user.infrastructure.corp_set.all()
-            for i in user_corps:
-                print(i)
-            print(obj.corp_id)
             if obj.corp_id in user_corps and (request.user.role == 'owner' or request.user.role == 'manager'):
                 return True
             return False
@@ -56,5 +40,21 @@ class IsManagerOrOwner(permissions.BasePermission):
             user_corps = request.user.infrastructure.corp_set.all()
             corps_sections = Section.objects.filter(corp_id__in=user_corps)
             if obj.section_id in corps_sections and (request.user.role == 'owner' or request.user.role == 'manager'):
+                return True
+            return False
+        if isinstance(obj, Riser):
+            user_corps = request.user.infrastructure.corp_set.all()
+            corps_sections = Section.objects.filter(corp_id__in=user_corps)
+            if obj.section_id in corps_sections and (request.user.role == 'owner' or request.user.role == 'manager'):
+                return True
+            return False
+        if isinstance(obj, Infrastructure):
+            user_infrastructure = request.user.infrastructure
+            if obj == user_infrastructure and (request.user.role == 'owner' or request.user.role == 'manager'):
+                return True
+            return False
+        if isinstance(obj, Apartment):
+            user_apartments = request.user.infrastructure.apartment_set.all()
+            if obj in user_apartments:
                 return True
             return False
