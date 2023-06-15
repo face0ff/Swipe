@@ -3,7 +3,7 @@ from rest_framework import permissions
 
 from checkerboard_app.models import Floor, Riser
 from infrastructures_app.models import Corp, Section, Infrastructure, Apartment
-
+from user_app.models import User
 
 
 class IsOwner(permissions.IsAuthenticated):
@@ -58,3 +58,12 @@ class IsManagerOrOwner(permissions.IsAuthenticated):
             if obj in user_apartments:
                 return True
             return False
+
+class IsOwnerNew(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.infrastructure_id.owner
+
+class IsUserNew(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        user_apart = User.objects.get(infrastructure__apartment__promotion_id=obj.id)
+        return request.user == user_apart

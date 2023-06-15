@@ -27,6 +27,9 @@ router.register(r'corp', CorpViewSet)
 router.register(r'section', SectionViewSet)
 router.register(r'infrastructure', InfrastructureViewSet)
 router.register(r'apartment', ApartmentViewSet)
+router.register(r'news', NewsViewSet)
+router.register(r'docs', DocsViewSet)
+router.register(r'promotion', PromotionViewSet)
 
 
 
@@ -47,7 +50,6 @@ urlpatterns = [
     path('api/v1/owner_update/', OwnerViewSet.as_view({'put': 'update'}), name='owner_update'),
 
     path('api/v1/user_list/<int:pk>/is_block ', BlackListUpdate.as_view(), name='black_list_update'),
-    path('api/v1/user_list/user_requests ', UserRequestList.as_view(), name='user_requests'),
 
     path('api/v1/message/<int:pk>/user', MessageUserGet.as_view({'get': 'list'}), name='Message'),
 
@@ -55,11 +57,8 @@ urlpatterns = [
     path('api/v1/subscription_create/', SubscriptionCreate.as_view(), name='Subscription'),
     path('api/v1/subscription_update/', SubscriptionUpdate.as_view(), name='Subscription'),
 
-    path('api/v1/promotion_update/<int:pk>/', PromotionUpdate.as_view(), name='promotion_update'),
-    path('api/v1/promotion_default/<int:pk>/', PromotionDelete.as_view(), name='promotion_default'),
-
-    path('api/v1/checkerboard_get/<int:pk>/', CheckerboardList.as_view(), name='checkerboard_get'),
-    path('api/v1/checkerboard_update/<int:pk>/', CheckerboardUpdate.as_view(), name='checkerboard_update'),
+    # path('api/v1/checkerboard_get/<int:pk>/', CheckerboardList.as_view(), name='checkerboard_get'),
+    # path('api/v1/checkerboard_update/<int:pk>/', CheckerboardUpdate.as_view(), name='checkerboard_update'),
 
     path('api/v1/corp/create', CorpCreate.as_view(), name='corp_create'),
     path('api/v1/corp/list', CorpList.as_view(), name='corp_list'),

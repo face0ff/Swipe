@@ -10,9 +10,9 @@ from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from infrastructures_app.models import Corp, Section, Infrastructure, Image, Apartment
+from infrastructures_app.models import Corp, Section, Infrastructure, Image, Apartment, News, Docs
 from infrastructures_app.serializers import *
-from user_app.permissions import IsManager, IsManagerOrOwner, IsUser
+from user_app.permissions import IsManager, IsManagerOrOwner, IsUser, IsOwnerNew
 
 
 # Create your views here.
@@ -71,12 +71,16 @@ class InfrastructureViewSet(PsqMixin, viewsets.ModelViewSet):
 
     psq_rules = {
         ('update', 'destroy'): [
-            Rule([AllowAny], InfrastructureUpDelSerializer),
+            Rule([IsManagerOrOwner], InfrastructureUpDelSerializer),
         ],
         ('list', 'retrieve'): [
             Rule([AllowAny], InfrastructureSerializer)
         ]
     }
+
+    @extend_schema(request=InfrastructureUpDelSerializer)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
 
     @action(methods=['get'], detail=False, url_name='my')
     def my_infrastructure(self, request):
@@ -84,8 +88,6 @@ class InfrastructureViewSet(PsqMixin, viewsets.ModelViewSet):
             instance = Infrastructure.objects.get(owner=self.request.user.id)
             serializer = self.get_serializer(instance, many=False)
             return Response(serializer.data)
-        # except ObjectDoesNotExist:
-        #     raise APIException('Infrastructure not found', code=404)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -105,25 +107,29 @@ class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
             Rule([AllowAny], ApartmentSerializer),
         ],
         ('update', 'destroy'): [
-            Rule([AllowAny], ApartmentUpdateSerializer)
+            Rule([IsUser], ApartmentUpdateSerializer)
         ],
         ('accept_apart'): [
             Rule([IsManager], AcceptSerializer)
+        ],
+        ('my_apartment'): [
+            Rule([IsAuthenticated], ApartmentSerializer)
         ]
     }
+
     @extend_schema(request=ApartmentCreateSerializer, responses=ApartmentCreateSerializer)
     def create(self, request, *args, **kwargs):
-        return super().create(self, request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     @extend_schema(request=ApartmentUpdateSerializer)
     def update(self, request, *args, **kwargs):
-        return super().update(self, request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)
 
     @action(methods=['get'], detail=False, url_name='my', serializer_class=ApartmentSerializer)
-    def my_apartment_list(self, request):
-        if not IsUser().has_permission(request, self):
-            return Response({'detail': 'Недостаточно прав доступа'}, status=status.HTTP_403_FORBIDDEN)
-        queryset = Apartment.objects.filter(infrastructure_id__owner=self.request.user.id)
+    def my_apartment(self, request):
+        # if not IsUser().has_permission(request, self):
+        #     return Response({'detail': 'Недостаточно прав доступа'}, status=status.HTTP_403_FORBIDDEN)
+        queryset = Apartment.objects.filter(user_id=self.request.user.id)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -133,4 +139,72 @@ class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()  # Save the updated instance
+        return Response(serializer.data)
+
+
+@extend_schema(tags=['News'])
+class NewsViewSet(PsqMixin, viewsets.ModelViewSet):
+    # serializer_class = ApartmentSerializer
+    queryset = News.objects.all()
+    http_method_names = ['get', 'post', 'put', 'delete']
+
+    psq_rules = {
+
+        ('list', 'retrieve'): [
+            Rule([AllowAny], NewsSerializer),
+        ],
+        ('create', 'update', 'destroy'): [
+            Rule([IsOwnerNew], NewsCreateUpdateSerializer)
+        ],
+        ('my_news'): [
+            Rule([AllowAny], NewsSerializer)
+        ]
+    }
+
+    @extend_schema(request=NewsCreateUpdateSerializer, responses=NewsCreateUpdateSerializer)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(request=NewsCreateUpdateSerializer)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @action(methods=['get'], detail=False, url_name='my', serializer_class=NewsSerializer)
+    def my_news(self, request):
+        queryset = News.objects.filter(infrastructure_id__owner=self.request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+@extend_schema(tags=['Docs'])
+class DocsViewSet(PsqMixin, viewsets.ModelViewSet):
+    # serializer_class = ApartmentSerializer
+    queryset = Docs.objects.all()
+    http_method_names = ['get', 'post', 'put', 'delete']
+    parser_classes = [MultiPartParser]
+
+    psq_rules = {
+
+        ('list', 'retrieve'): [
+            Rule([AllowAny], DocsSerializer),
+        ],
+        ('create', 'update', 'destroy'): [
+            Rule([IsOwnerNew], DocsCreateUpdateSerializer)
+        ],
+        ('my_docs'): [
+            Rule([AllowAny], DocsSerializer)
+        ]
+    }
+
+    @extend_schema(request=DocsCreateUpdateSerializer, responses=DocsCreateUpdateSerializer)
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(request=DocsCreateUpdateSerializer)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @action(methods=['get'], detail=False, url_name='my', serializer_class=DocsSerializer)
+    def my_docs(self, request):
+        queryset = Docs.objects.filter(infrastructure_id__owner=self.request.user)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

@@ -76,22 +76,19 @@ class MessageUserGet(BaseMessage):
 
 
 
-
-
-@extend_schema(tags=['ManagerUserView'])
-class UserRequestList(ListAPIView):
-    queryset = UserRequest.objects.all()
-    serializer_class = UserRequestsSerializer
-    http_method_names = ['get']
-    permission_classes = (IsManager,)
-
-
 @extend_schema(tags=['ManagerUserView'])
 class ManagerUserListViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = ManagerUserListSerializer
     http_method_names = ['get']
     permission_classes = (IsManager,)
+
+
+    @action(methods=['get'], detail=False, url_name='list', serializer_class=UserRequestsSerializer)
+    def user_request(self, request):
+        queryset = UserRequest.objects.all()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @extend_schema(tags=['ManagerUserView'])

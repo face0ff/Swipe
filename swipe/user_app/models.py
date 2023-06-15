@@ -44,6 +44,7 @@ class UserRequest(models.Model):
     apartment_id = models.ForeignKey('infrastructures_app.Apartment', on_delete=models.CASCADE)
 
 
+
 class Message(models.Model):
     text = models.TextField('Текст сообщения')
     sender = models.ForeignKey(User, related_name='sender_messages', on_delete=models.CASCADE)

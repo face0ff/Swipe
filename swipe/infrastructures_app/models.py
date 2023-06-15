@@ -149,10 +149,14 @@ class Apartment(models.Model):
         ('description', 'Описание'),
     )
     rejection = models.CharField('Причины отклонения', choices=REJECTION_CHOICE, max_length=20, default="")
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 
 class Image(models.Model):
-    image = models.ImageField('', upload_to='img/image/')
+    image_place = models.IntegerField(null=True)
+    image_delete = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='img/image/', null=True)
+    hash = models.CharField(max_length=500, null=True)
     infrastructure_id = models.ForeignKey(Infrastructure, on_delete=models.CASCADE, related_name='imageInfrastructure')
 
 
