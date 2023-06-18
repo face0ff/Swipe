@@ -73,6 +73,7 @@ class Apartment(models.Model):
         ('cottage', 'Коттедж')
     )
     view = models.CharField('Вид', choices=VIEW_CHOICE, max_length=20, default='primary')
+
     TECHNOLOGY_CHOICE = (
         ('panel', 'Панельный'),
         ('monolith', 'Монолит')

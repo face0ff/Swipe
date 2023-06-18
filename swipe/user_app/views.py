@@ -1,4 +1,5 @@
 from django.http import Http404
+from drf_psq import Rule, PsqMixin
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets, status
 from rest_framework.decorators import action
@@ -11,7 +12,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 
 
-
 @extend_schema(tags=['Subscription'])
 class SubscriptionGet(ListAPIView):
     queryset = Subscription.objects.all()
@@ -22,11 +22,13 @@ class SubscriptionGet(ListAPIView):
         user = self.request.user
         return Subscription.objects.filter(user__id=user.id)
 
+
 @extend_schema(tags=['Subscription'])
 class SubscriptionCreate(CreateAPIView):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
     http_method_names = ['post']
+
 
 @extend_schema(tags=['Subscription'])
 class SubscriptionUpdate(UpdateAPIView):
@@ -50,10 +52,30 @@ class SubscriptionUpdate(UpdateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @extend_schema(tags=['Notaries'])
-class NotariesViewSet(viewsets.ModelViewSet):
+class NotariesViewSet(PsqMixin, viewsets.ModelViewSet):
     queryset = Notaries.objects.all()
     serializer_class = NotariesSerializer
+    http_method_names = ['get', 'post', 'put', 'delete']
+
+    psq_rules = {
+        ('list', 'retrieve'): [
+            Rule([IsUser], NotariesSerializer),
+        ],
+        ('create', 'update', 'destroy'): [
+            Rule([IsManager], NotariesSerializer),
+        ]
+    }
+    #
+    # @extend_schema(request=NotariesSerializer, responses=NotariesSerializer)
+    # def create(self, request, *args, **kwargs):
+    #     return super().create(request, *args, **kwargs)
+    #
+    # @extend_schema(request=NotariesSerializer, responses=NotariesSerializer)
+    # def update(self, request, *args, **kwargs):
+    #     return super().update(request, *args, **kwargs)
+
 
 @extend_schema(tags=['Message'])
 class BaseMessage(viewsets.ModelViewSet):
@@ -61,19 +83,20 @@ class BaseMessage(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
 
 
-
 class MessageViewSet(BaseMessage):
     http_method_names = ['get', 'post', 'delete']
+
     def get_queryset(self):
         user = self.request.user
         return Message.objects.filter(sender=user)
 
+
 class MessageUserGet(BaseMessage):
     http_method_names = ['get']
+
     def get_queryset(self):
         user = self.kwargs['pk']
         return Message.objects.filter(sender=user)
-
 
 
 @extend_schema(tags=['ManagerUserView'])
@@ -82,7 +105,6 @@ class ManagerUserListViewSet(viewsets.ModelViewSet):
     serializer_class = ManagerUserListSerializer
     http_method_names = ['get']
     permission_classes = (IsManager,)
-
 
     @action(methods=['get'], detail=False, url_name='list', serializer_class=UserRequestsSerializer)
     def user_request(self, request):
@@ -106,6 +128,7 @@ class UserAdminViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAdminUser,)
 
+
 @extend_schema(tags=['UserOwner'])
 class UserRegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -113,12 +136,14 @@ class UserRegisterViewSet(viewsets.ModelViewSet):
     http_method_names = ['post']
     permission_classes = (AllowAny,)
 
+
 @extend_schema(tags=['UserOwner'])
 class OwnerRegisterViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomRegisterSerializer
     http_method_names = ['post']
     permission_classes = (AllowAny,)
+
 
 @extend_schema(tags=['UserOwner'])
 class BaseViewSet(viewsets.ModelViewSet):
@@ -129,6 +154,7 @@ class BaseViewSet(viewsets.ModelViewSet):
         obj = get_object_or_404(User, id=user.id)
         self.check_object_permissions(self.request, obj)
         return obj
+
     @action(detail=False, methods=['put'])
     def user_update(self, request):
         user = self.request.user
@@ -149,6 +175,7 @@ class UserViewSet(BaseViewSet):
 class OwnerViewSet(BaseViewSet):
     serializer_class = OwnerSerializer
     permission_classes = (IsOwner,)
+
 
 @extend_schema(tags=['Favorite'])
 class FavoriteApartViewSet(viewsets.ModelViewSet):
@@ -171,7 +198,8 @@ class FavoriteInfrastructureViewSet(viewsets.ModelViewSet):
     permission_classes = (IsUserFavor,)
     http_method_names = ['get', 'post', 'delete']
 
-    @action(methods=['get'], detail=False, url_name='my_favorite_infrastructure', serializer_class=FavoriteInfrastructureSerializer)
+    @action(methods=['get'], detail=False, url_name='my_favorite_infrastructure',
+            serializer_class=FavoriteInfrastructureSerializer)
     def my_favorite_infrastructure(self, request):
         queryset = UserFavoriteInfrastructure.objects.filter(user_id=self.request.user)
         serializer = self.get_serializer(queryset, many=True)

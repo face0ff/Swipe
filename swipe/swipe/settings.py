@@ -227,18 +227,14 @@ ACCOUNT_EMAIL_REQUIRED = True
 # ACCOUNT_USERNAME_REQUIRED = False
 # ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-CELERY_BROKER_URL = env('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND')
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
 CELERYD_HIJACK_ROOT_LOGGER = False
 CELERY_BEAT_SCHEDULE = {
     'task_one_schedule': {
-        'task': 'user_app.tasks.test',
+        'task': 'user_app.tasks.tests',
         'schedule': crontab(minute='*/15'),
     },
 }
