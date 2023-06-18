@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+
 class Subscription(models.Model):
     paid_by = models.DateField('Дата')
     auto_renewal = models.BooleanField(default=True)
@@ -58,3 +59,15 @@ class Notaries(models.Model):
     email = models.EmailField('Имейл', max_length=32)
 
 
+class UserFavoriteApartment(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    apartment_id = models.ForeignKey('infrastructures_app.Apartment', on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'user_favorite_apartment'
+
+
+class UserFavoriteInfrastructure(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    infrastructure_id = models.ForeignKey('infrastructures_app.Infrastructure', on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'user_favorite_infrastructure'

@@ -1,16 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
 from drf_psq import Rule, PsqMixin
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.exceptions import APIException
 from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-
-from infrastructures_app.models import Corp, Section, Infrastructure, Image, Apartment, News, Docs
 from infrastructures_app.serializers import *
 from user_app.permissions import IsManager, IsManagerOrOwner, IsUser, IsOwnerNew
 
@@ -104,15 +100,16 @@ class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
             Rule([IsUser], ApartmentCreateSerializer),
         ],
         ('list', 'retrieve'): [
-            Rule([AllowAny], ApartmentSerializer),
+            Rule([IsUser], ApartmentSerializer, lambda self: Apartment.objects.filter(accept=True)),
+            Rule([IsManager], ApartmentSerializer, lambda self: Apartment.objects.all()),
         ],
         ('update', 'destroy'): [
             Rule([IsUser], ApartmentUpdateSerializer)
         ],
-        ('accept_apart'): [
+        'accept_apart': [
             Rule([IsManager], AcceptSerializer)
         ],
-        ('my_apartment'): [
+        'my_apartment': [
             Rule([IsAuthenticated], ApartmentSerializer)
         ]
     }
@@ -127,8 +124,6 @@ class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False, url_name='my', serializer_class=ApartmentSerializer)
     def my_apartment(self, request):
-        # if not IsUser().has_permission(request, self):
-        #     return Response({'detail': 'Недостаточно прав доступа'}, status=status.HTTP_403_FORBIDDEN)
         queryset = Apartment.objects.filter(user_id=self.request.user.id)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
@@ -156,7 +151,7 @@ class NewsViewSet(PsqMixin, viewsets.ModelViewSet):
         ('create', 'update', 'destroy'): [
             Rule([IsOwnerNew], NewsCreateUpdateSerializer)
         ],
-        ('my_news'): [
+        'my_news': [
             Rule([AllowAny], NewsSerializer)
         ]
     }
@@ -175,6 +170,7 @@ class NewsViewSet(PsqMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+
 @extend_schema(tags=['Docs'])
 class DocsViewSet(PsqMixin, viewsets.ModelViewSet):
     # serializer_class = ApartmentSerializer
@@ -190,7 +186,7 @@ class DocsViewSet(PsqMixin, viewsets.ModelViewSet):
         ('create', 'update', 'destroy'): [
             Rule([IsOwnerNew], DocsCreateUpdateSerializer)
         ],
-        ('my_docs'): [
+        'my_docs': [
             Rule([AllowAny], DocsSerializer)
         ]
     }

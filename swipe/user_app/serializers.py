@@ -4,10 +4,12 @@ from datetime import timedelta
 from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from checkerboard_app.models import Checkerboard
 from infrastructures_app.models import Infrastructure
-from .models import Notaries, User, Message, Subscription, UserRequest
+from .models import Notaries, User, Message, Subscription, UserRequest, UserFavoriteApartment, \
+    UserFavoriteInfrastructure
 from allauth.account import app_settings as allauth_settings
 from allauth.account.adapter import get_adapter
 from allauth.account.models import EmailAddress
@@ -188,5 +190,27 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return subscription
 
 
+class FavoriteApartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFavoriteApartment
+        fields = ('id', 'apartment_id',)
 
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if UserFavoriteApartment.objects.filter(user_id= user, apartment_id=validated_data['apartment_id']).exists():
+            raise ValidationError("Вы пытаетесь добавить туже квартирку второй раз")
+        instance = UserFavoriteApartment.objects.create(user_id=user, apartment_id=validated_data['apartment_id'])
+        return instance
+
+class FavoriteInfrastructureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFavoriteInfrastructure
+        fields = ('id', 'infrastructure_id',)
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        if UserFavoriteInfrastructure.objects.filter(infrastructure_id=validated_data['infrastructure_id']).exists():
+            raise ValidationError("Вы пытаетесь добавить тотже ЖК второй раз")
+        instance = UserFavoriteInfrastructure.objects.create(user_id=user, infrastructure_id=validated_data['infrastructure_id'])
+        return instance
 

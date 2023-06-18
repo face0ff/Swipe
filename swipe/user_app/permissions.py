@@ -67,3 +67,8 @@ class IsUserNew(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         user_apart = User.objects.get(infrastructure__apartment__promotion_id=obj.id)
         return request.user == user_apart
+
+
+class IsUserFavor(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return request.user == obj.user_id

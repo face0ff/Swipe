@@ -100,7 +100,7 @@ class Apartment(models.Model):
         ('need', 'Требует ремонта'),
         ('building', 'Ремонт от строителей')
     )
-    state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=20, default='building')
+    state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=30, default='building')
     PLANE_CHOICE = (
         ('studio', 'Студия'),
         ('standart', 'Стандарт'),
@@ -154,13 +154,13 @@ class Apartment(models.Model):
 
 class Image(models.Model):
     image_place = models.IntegerField(null=True)
-    image_delete = models.BooleanField(default=False)
     image = models.ImageField(upload_to='img/image/', null=True)
     hash = models.CharField(max_length=500, null=True)
     infrastructure_id = models.ForeignKey(Infrastructure, on_delete=models.CASCADE, related_name='imageInfrastructure')
 
 
 class ImageApart(models.Model):
+    image_place = models.IntegerField(null=True)
     image = models.ImageField('', upload_to='img/image/')
     apartment_id = models.ForeignKey(Apartment, on_delete=models.CASCADE, related_name='imageApart')
 

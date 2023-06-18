@@ -4,7 +4,7 @@ from rest_framework import generics, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, UpdateAPIView, ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
-from .permissions import IsOwner, IsUser, IsManager
+from .permissions import IsOwner, IsUser, IsManager, IsUserFavor
 from .serializers import *
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -150,5 +150,29 @@ class OwnerViewSet(BaseViewSet):
     serializer_class = OwnerSerializer
     permission_classes = (IsOwner,)
 
+@extend_schema(tags=['Favorite'])
+class FavoriteApartViewSet(viewsets.ModelViewSet):
+    queryset = UserFavoriteApartment.objects.all()
+    serializer_class = FavoriteApartSerializer
+    permission_classes = (IsUserFavor,)
+    http_method_names = ['get', 'post', 'delete']
+
+    @action(methods=['get'], detail=False, url_name='my_favorite_apart', serializer_class=FavoriteApartSerializer)
+    def my_favorite_apart(self, request):
+        queryset = UserFavoriteApartment.objects.filter(user_id=self.request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
+@extend_schema(tags=['Favorite'])
+class FavoriteInfrastructureViewSet(viewsets.ModelViewSet):
+    queryset = UserFavoriteInfrastructure.objects.all()
+    serializer_class = FavoriteInfrastructureSerializer
+    permission_classes = (IsUserFavor,)
+    http_method_names = ['get', 'post', 'delete']
+
+    @action(methods=['get'], detail=False, url_name='my_favorite_infrastructure', serializer_class=FavoriteInfrastructureSerializer)
+    def my_favorite_infrastructure(self, request):
+        queryset = UserFavoriteInfrastructure.objects.filter(user_id=self.request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

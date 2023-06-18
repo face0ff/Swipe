@@ -1,17 +1,14 @@
-
 from dj_rest_auth.registration.views import VerifyEmailView
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework import routers
 
-from checkerboard_app.views import CheckerboardList, CheckerboardUpdate, FloorViewSet, FloorList, RiserViewSet, \
+from checkerboard_app.views import FloorViewSet, FloorList, RiserViewSet, \
     RiserList
 from filters_app.views import FiltersViewSet
 from infrastructures_app.views import *
 from promotion_app.views import *
 from user_app.views import *
-
-
 
 router = routers.SimpleRouter()
 router.register(r'notaries', NotariesViewSet)
@@ -30,15 +27,13 @@ router.register(r'apartment', ApartmentViewSet)
 router.register(r'news', NewsViewSet)
 router.register(r'docs', DocsViewSet)
 router.register(r'promotion', PromotionViewSet)
-
-
+router.register(r'favorite_infrastructure', FavoriteInfrastructureViewSet)
+router.register(r'favorite_apartments', FavoriteApartViewSet)
 
 urlpatterns = [
 
-
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-
 
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
@@ -57,9 +52,6 @@ urlpatterns = [
     path('api/v1/subscription_create/', SubscriptionCreate.as_view(), name='Subscription'),
     path('api/v1/subscription_update/', SubscriptionUpdate.as_view(), name='Subscription'),
 
-    # path('api/v1/checkerboard_get/<int:pk>/', CheckerboardList.as_view(), name='checkerboard_get'),
-    # path('api/v1/checkerboard_update/<int:pk>/', CheckerboardUpdate.as_view(), name='checkerboard_update'),
-
     path('api/v1/corp/create', CorpCreate.as_view(), name='corp_create'),
     path('api/v1/corp/list', CorpList.as_view(), name='corp_list'),
 
@@ -67,15 +59,5 @@ urlpatterns = [
 
     path('api/v1/floor/list', FloorList.as_view(), name='floor_list'),
     path('api/v1/riser/list', RiserList.as_view(), name='riser_list'),
-
-    # path('api/v1/apartments/user/', ApartmentViewSet.as_view({'get': 'list'}),
-    #      name='user_apartment_list'),
-    # path('api/v1/apartments/user/<int:pk>/', ApartmentViewSet.as_view({'get': 'retrieve'}),
-    #      name='user_apartment_detail'),
-
-
-
-
-
 
 ]
