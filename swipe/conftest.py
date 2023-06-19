@@ -10,6 +10,13 @@ def api_client():
     return APIClient()
 
 
+@pytest.fixture(scope='session')
+def django_db_setup(django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        User.objects.create_superuser(email='admin@example.com', password='string')
+        User.objects.create_user(email='user@example.com', password='string', role='user')
+        User.objects.create_user(email='owner@example.com', password='string', role='owner')
+
 @pytest.fixture
 def create_user(email, password):
     user = User.objects.create_user(email=email, password=password, username=email, role='user')
