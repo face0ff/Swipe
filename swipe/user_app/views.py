@@ -17,6 +17,7 @@ class SubscriptionGet(ListAPIView):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
     http_method_names = ['get']
+    permission_classes = (IsUser,)
 
     def get_queryset(self):
         user = self.request.user

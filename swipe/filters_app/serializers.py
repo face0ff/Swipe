@@ -4,8 +4,6 @@ from datetime import timedelta
 from rest_framework import serializers
 
 from filters_app.models import Filter
-from promotion_app.models import Promotion
-from user_app.serializers import BaseUserSerializer
 
 
 class FilterSerializer(serializers.ModelSerializer):
