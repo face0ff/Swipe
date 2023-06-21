@@ -134,17 +134,17 @@ class BaseUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserSerializer(BaseUserSerializer):
+class UserUpdateSerializer(BaseUserSerializer):
     class Meta:
         model = User
-        fields = ('avatar', 'email', 'password', 'last_name', 'first_name', 'telephone', 'notification', 'to_agent',
+        fields = ('avatar', 'last_name', 'first_name', 'telephone', 'notification', 'to_agent',
                   'agent_first_name', 'agent_last_name', 'agent_telephone', 'agent_email')
 
 
-class OwnerSerializer(BaseUserSerializer):
+class OwnerUpdateSerializer(BaseUserSerializer):
     class Meta:
         model = User
-        fields = ('email', 'password', 'last_name', 'first_name')
+        fields = ('last_name', 'first_name')
 
 class ManagerUserListSerializer(BaseUserSerializer):
     class Meta:

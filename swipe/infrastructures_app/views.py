@@ -90,7 +90,7 @@ class InfrastructureViewSet(PsqMixin, viewsets.ModelViewSet):
 
 @extend_schema(tags=['Apartment'])
 class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
-    # serializer_class = ApartmentSerializer
+    serializer_class = ApartmentSerializer
     queryset = Apartment.objects.all()
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
     parser_classes = [MultiPartParser]
@@ -139,7 +139,7 @@ class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
 
 @extend_schema(tags=['News'])
 class NewsViewSet(PsqMixin, viewsets.ModelViewSet):
-    # serializer_class = ApartmentSerializer
+    serializer_class = NewsSerializer
     queryset = News.objects.all()
     http_method_names = ['get', 'post', 'put', 'delete']
 
@@ -173,7 +173,7 @@ class NewsViewSet(PsqMixin, viewsets.ModelViewSet):
 
 @extend_schema(tags=['Docs'])
 class DocsViewSet(PsqMixin, viewsets.ModelViewSet):
-    # serializer_class = ApartmentSerializer
+    serializer_class = DocsSerializer
     queryset = Docs.objects.all()
     http_method_names = ['get', 'post', 'put', 'delete']
     parser_classes = [MultiPartParser]

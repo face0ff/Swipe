@@ -24,7 +24,7 @@ class Infrastructure(models.Model):
         ('multifamily', 'многоквартирный'),
         ('singlefamily', 'одноквартирный')
     )
-    view = models.CharField('Тип', choices=VIEW_CHOICE, max_length=20, default='singlefamily')
+    infrastructure_view = models.CharField('Тип', choices=VIEW_CHOICE, max_length=20, default='singlefamily')
     TECHNOLOGY_CHOICE = (
         ('panel', 'Панельный'),
         ('monolith', 'Монолит')
@@ -51,12 +51,12 @@ class Infrastructure(models.Model):
         ('central', 'Центрайльное'),
         ('individual', 'Индивидуальное')
     )
-    heating = models.CharField('Отопление', choices=HEATING_CHOICE, max_length=20, default='central')
+    infrastructure_heating = models.CharField('Отопление', choices=HEATING_CHOICE, max_length=20, default='central')
     SEWAGE_CHOICE = (
         ('central', 'Центрайльное'),
         ('individual', 'Индивидуальное')
     )
-    sewage = models.CharField('Каннализация', choices=SEWAGE_CHOICE, max_length=20, default='central')
+    infrastructure_sewage = models.CharField('Каннализация', choices=SEWAGE_CHOICE, max_length=20, default='central')
     WATTER_CHOICE = (
         ('central', 'Центрайльное'),
         ('individual', 'Индивидуальное')
@@ -72,13 +72,13 @@ class Apartment(models.Model):
         ('primary', 'Новострой'),
         ('cottage', 'Коттедж')
     )
-    view = models.CharField('Вид', choices=VIEW_CHOICE, max_length=20, default='primary')
+    apart_view = models.CharField('Вид', choices=VIEW_CHOICE, max_length=20, default='primary')
 
     TECHNOLOGY_CHOICE = (
         ('panel', 'Панельный'),
         ('monolith', 'Монолит')
     )
-    technology = models.CharField('Технология', choices=TECHNOLOGY_CHOICE, max_length=20, default='panel')
+    apart_technology = models.CharField('Технология', choices=TECHNOLOGY_CHOICE, max_length=20, default='panel')
     APART_STATUS = (
         ('rented', 'Сдан'),
         ('vacant', 'Не сдан')
@@ -101,7 +101,7 @@ class Apartment(models.Model):
         ('need', 'Требует ремонта'),
         ('building', 'Ремонт от строителей')
     )
-    state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=30, default='building')
+    apart_state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=30, default='building')
     PLANE_CHOICE = (
         ('studio', 'Студия'),
         ('standart', 'Стандарт'),
@@ -120,7 +120,7 @@ class Apartment(models.Model):
         ('electro_heating', 'Электрическое'),
         ('gas_heating', 'Газовое')
     )
-    heating = models.CharField('Газ', choices=HEATING_CHOICE, max_length=20, default='yes')
+    apart_heating = models.CharField('Газ', choices=HEATING_CHOICE, max_length=20, default='yes')
     PAY_CHOICE = (
         ('cash', 'Наличные'),
         ('maternity', 'Мат. капитал'),

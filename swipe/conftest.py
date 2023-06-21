@@ -4,6 +4,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
 import user_app.serializers
+from infrastructures_app.models import Infrastructure, Corp
 from user_app.models import User
 
 
@@ -21,8 +22,10 @@ def django_db_setup(django_db_setup, django_db_blocker):
         user = User.objects.create_user(email='user@example.com', username='user@example.com', password='string',
                                         role='user')
         EmailAddress.objects.create(email=user.email, verified=True, primary=True, user_id=user.id)
+
         owner = User.objects.create_user(email='owner@example.com', username='owner@example.com', password='string',
                                          role='owner')
+        infrastructure = Infrastructure.objects.create(owner=owner)
         EmailAddress.objects.create(email=owner.email, verified=True, primary=True, user_id=owner.id)
 
 
@@ -57,3 +60,15 @@ def create_owner():
 def owner_authenticate(api_client, create_owner):
     api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {AccessToken.for_user(create_owner)}')
     return api_client
+
+
+
+@pytest.fixture()
+def infrastructure_create(create_owner):
+    infrastructure = Infrastructure.objects.create(owner=create_owner)
+    return infrastructure
+
+@pytest.fixture()
+def corp_create(create_owner):
+    corp = Corp.objects.create(number=1, infrastructure_id=create_owner.infrastructure)
+    return corp

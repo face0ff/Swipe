@@ -14,7 +14,7 @@ from user_app.permissions import IsOwnerNew, IsUser, IsUserNew
 
 @extend_schema(tags=['Promotion'])
 class PromotionViewSet(PsqMixin, viewsets.ModelViewSet):
-    # serializer_class = ApartmentSerializer
+    serializer_class = PromotionSerializer
     queryset = Promotion.objects.all()
     http_method_names = ['get', 'put']
 

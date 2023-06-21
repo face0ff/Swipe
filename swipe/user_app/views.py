@@ -4,6 +4,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404, UpdateAPIView, ListAPIView, CreateAPIView
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from .permissions import IsOwner, IsUser, IsManager, IsUserFavor
 from .serializers import *
@@ -149,6 +150,7 @@ class OwnerRegisterViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=['UserOwner'])
 class BaseViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
+    http_method_names = ['put', 'post']
 
     def get_object(self):
         user = self.request.user
@@ -156,26 +158,29 @@ class BaseViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(self.request, obj)
         return obj
 
-    @action(detail=False, methods=['put'])
-    def user_update(self, request):
-        user = self.request.user
-        data = request.data
-        data['id'] = user.id
-        serializer = self.get_serializer(user, data=data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data)
+    # @action(detail=False, methods=['put'])
+    # def user_update(self, request):
+    #     user = self.request.user
+    #     data = request.data
+    #     data['id'] = user.id
+    #     serializer = self.get_serializer(user, data=data, partial=True)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #
+    #     return Response(serializer.data)
 
 
 class UserViewSet(BaseViewSet):
-    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    serializer_class = UserUpdateSerializer
     permission_classes = (IsUser,)
+    parser_classes = [MultiPartParser]
 
 
 class OwnerViewSet(BaseViewSet):
-    serializer_class = OwnerSerializer
+    serializer_class = OwnerUpdateSerializer
     permission_classes = (IsOwner,)
+    parser_classes = [MultiPartParser]
 
 
 @extend_schema(tags=['Favorite'])

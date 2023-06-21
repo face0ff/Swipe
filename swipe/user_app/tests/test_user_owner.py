@@ -57,8 +57,6 @@ class TestUser:
                                         password='testpassword',
                                         role='user')
         user.save()
-        api_client = APIClient()
-        api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {AccessToken.for_user(user)}')
         file_path = "media/img/avatar/4.jpeg"  # Путь к файлу аватара
         file_name = os.path.basename(file_path)
         file_content = open(file_path, 'rb').read()
@@ -93,7 +91,6 @@ class TestUser:
         api_client = APIClient()
         api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {AccessToken.for_user(user)}')
         value = {
-            "email": "ownertest@example.com",
             "first_name": "string",
             "last_name": "string"
         }
