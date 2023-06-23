@@ -63,7 +63,7 @@ class Infrastructure(models.Model):
     )
     watter_supply = models.CharField('Водоснабжение', choices=WATTER_CHOICE, max_length=20, default='central')
     map = models.TextField('Карта', null=True, blank=True)
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    owner_id = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
 
 class Apartment(models.Model):
@@ -72,13 +72,13 @@ class Apartment(models.Model):
         ('primary', 'Новострой'),
         ('cottage', 'Коттедж')
     )
-    apart_view = models.CharField('Вид', choices=VIEW_CHOICE, max_length=20, default='primary')
+    view = models.CharField('Вид', choices=VIEW_CHOICE, max_length=20, default='primary')
 
     TECHNOLOGY_CHOICE = (
         ('panel', 'Панельный'),
         ('monolith', 'Монолит')
     )
-    apart_technology = models.CharField('Технология', choices=TECHNOLOGY_CHOICE, max_length=20, default='panel')
+    technology = models.CharField('Технология', choices=TECHNOLOGY_CHOICE, max_length=20, default='panel')
     APART_STATUS = (
         ('rented', 'Сдан'),
         ('vacant', 'Не сдан')
@@ -101,7 +101,7 @@ class Apartment(models.Model):
         ('need', 'Требует ремонта'),
         ('building', 'Ремонт от строителей')
     )
-    apart_state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=30, default='building')
+    state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=30, default='building')
     PLANE_CHOICE = (
         ('studio', 'Студия'),
         ('standart', 'Стандарт'),
@@ -120,7 +120,7 @@ class Apartment(models.Model):
         ('electro_heating', 'Электрическое'),
         ('gas_heating', 'Газовое')
     )
-    apart_heating = models.CharField('Газ', choices=HEATING_CHOICE, max_length=20, default='yes')
+    heating = models.CharField('Газ', choices=HEATING_CHOICE, max_length=20, default='yes')
     PAY_CHOICE = (
         ('cash', 'Наличные'),
         ('maternity', 'Мат. капитал'),
@@ -150,7 +150,7 @@ class Apartment(models.Model):
         ('description', 'Описание'),
     )
     rejection = models.CharField('Причины отклонения', choices=REJECTION_CHOICE, max_length=20, default="")
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
 
 class Image(models.Model):

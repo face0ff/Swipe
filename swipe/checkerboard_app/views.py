@@ -36,7 +36,7 @@ class FloorList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Floor.objects.filter(section_id__corp_id__infrastructure_id__owner=user)
+        return Floor.objects.filter(section_id__corp_id__infrastructure_id__owner_id=user)
 
 @extend_schema(tags=['Riser'])
 class RiserViewSet(viewsets.ModelViewSet):
@@ -54,4 +54,4 @@ class RiserList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Riser.objects.filter(section_id__corp_id__infrastructure_id__owner=user)
+        return Riser.objects.filter(section_id__corp_id__infrastructure_id__owner_id=user)

@@ -61,7 +61,7 @@ class IsManagerOrOwner(permissions.IsAuthenticated):
 
 class IsOwnerNew(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        return request.user == obj.infrastructure_id.owner
+        return request.user == obj.infrastructure_id.owner_id
 
 class IsUserNew(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):

@@ -50,4 +50,4 @@ class Filter(models.Model):
         ('building', 'Ремонт от строителей')
     )
     filter_state = models.CharField('Жилое состояние', choices=STATE_CHOICE, max_length=20, default='building')
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)

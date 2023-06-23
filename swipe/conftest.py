@@ -23,9 +23,10 @@ def django_db_setup(django_db_setup, django_db_blocker):
                                         role='user')
         EmailAddress.objects.create(email=user.email, verified=True, primary=True, user_id=user.id)
 
-        owner = User.objects.create_user(email='owner@example.com', username='owner@example.com', password='string',
+        owner = User.objects.create_user(email='testowner@example.com', username='testowner@example.com', password='string',
                                          role='owner')
-        infrastructure = Infrastructure.objects.create(owner=owner)
+        print(owner)
+        infrastructure = Infrastructure.objects.create(owner_id=owner)
         EmailAddress.objects.create(email=owner.email, verified=True, primary=True, user_id=owner.id)
 
 

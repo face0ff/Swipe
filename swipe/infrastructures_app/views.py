@@ -28,7 +28,7 @@ class CorpList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Corp.objects.filter(infrastructure_id__owner=user)
+        return Corp.objects.filter(infrastructure_id__owner_id=user)
 
 
 @extend_schema(tags=['Corp'])
@@ -55,7 +55,7 @@ class SectionList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Section.objects.filter(corp_id__infrastructure_id__owner=user)
+        return Section.objects.filter(corp_id__infrastructure_id__owner_id=user)
 
 
 @extend_schema(tags=['Infrastructure'])
@@ -81,7 +81,7 @@ class InfrastructureViewSet(PsqMixin, viewsets.ModelViewSet):
     @action(methods=['get'], detail=False, url_name='my')
     def my_infrastructure(self, request):
         try:
-            instance = Infrastructure.objects.get(owner=self.request.user.id)
+            instance = Infrastructure.objects.get(owner_id=self.request.user.id)
             serializer = self.get_serializer(instance, many=False)
             return Response(serializer.data)
         except ObjectDoesNotExist:
@@ -166,7 +166,7 @@ class NewsViewSet(PsqMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False, url_name='my', serializer_class=NewsSerializer)
     def my_news(self, request):
-        queryset = News.objects.filter(infrastructure_id__owner=self.request.user)
+        queryset = News.objects.filter(infrastructure_id__owner_id=self.request.user)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -201,6 +201,6 @@ class DocsViewSet(PsqMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False, url_name='my', serializer_class=DocsSerializer)
     def my_docs(self, request):
-        queryset = Docs.objects.filter(infrastructure_id__owner=self.request.user)
+        queryset = Docs.objects.filter(infrastructure_id__owner_id=self.request.user)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

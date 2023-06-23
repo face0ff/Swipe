@@ -44,7 +44,7 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
             user.role = 'user'
         elif action == 'owner_register':
             user.role = 'owner'
-            infrastructure = Infrastructure.objects.create(owner=user)
+            infrastructure = Infrastructure.objects.create(owner_id=user)
             checkerboard = Checkerboard.objects.create(infrastructure_id=infrastructure)
             checkerboard.save()
             infrastructure.save()

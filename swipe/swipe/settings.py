@@ -238,3 +238,14 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': crontab(minute='*/15'),
     },
 }
+
+
+ENUM_NAME_OVERRIDES = {
+    'FilterStatusEnum': 'UniqueFilterStatusEnum',
+    'FilterQuantityEnum': 'UniqueFilterQuantityEnum',
+    'FilterPaymentEnum': 'UniqueFilterPaymentEnum',
+    'FilterStateEnum': 'UniqueFilterStateEnum',
+    'StatusEnum': 'UniqueStatusEnum',
+    'ElectricityEnum': 'UniqueElectricityEnum',
+    'InfrastructureSewageEnum': 'UniqueInfrastructureSewageEnum',
+}

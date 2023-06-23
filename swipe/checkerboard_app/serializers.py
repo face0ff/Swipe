@@ -36,7 +36,7 @@ class RiserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        infrastructure = Infrastructure.objects.get(owner=user)
+        infrastructure = Infrastructure.objects.get(owner_id=user)
         section_id = validated_data['section_id'].id
         number = validated_data['number']
         if Riser.objects.filter(section_id__corp_id=section_id, number=number).exists():

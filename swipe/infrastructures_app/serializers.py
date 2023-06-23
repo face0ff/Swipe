@@ -22,7 +22,7 @@ class CorpCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         user = self.context['request'].user
-        infrastructure = Infrastructure.objects.get(owner=user)
+        infrastructure = Infrastructure.objects.get(owner_id=user)
         attrs['infrastructure_id'] = infrastructure
         return attrs
 
@@ -43,7 +43,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        infrastructure = Infrastructure.objects.get(owner=user)
+        infrastructure = Infrastructure.objects.get(owner_id=user)
         corp_id = validated_data['corp_id']
         number = validated_data['number']
         if Section.objects.filter(corp_id=corp_id, number=number).exists():
@@ -214,7 +214,7 @@ class NewsCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        infra_id = Infrastructure.objects.get(owner=user)
+        infra_id = Infrastructure.objects.get(owner_id=user)
         validated_data['infrastructure_id'] = infra_id
         news = News.objects.create(**validated_data)
         return news
@@ -233,7 +233,7 @@ class DocsCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        infra_id = Infrastructure.objects.get(owner=user)
+        infra_id = Infrastructure.objects.get(owner_id=user)
         validated_data['infrastructure_id'] = infra_id
         docs = Docs.objects.create(**validated_data)
         return docs
