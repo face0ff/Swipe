@@ -8,7 +8,8 @@ class Command(BaseCommand):
 
         if User.objects.count() == 0:
             email = 'admin@admin.com'
+            username = 'admin@admin.com'
             password = 'admin'
-            User.objects.create_superuser(email=email, password=password)
+            User.objects.create_superuser(email=email, username=username, password=password)
         else:
             print('Admin Готовченко')
