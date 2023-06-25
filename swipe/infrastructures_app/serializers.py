@@ -77,7 +77,7 @@ class ImagesSerializer(serializers.ModelSerializer):
 
 
 class InfrastructureUpDelSerializer(serializers.ModelSerializer):
-    owner = OwnerSerializer(read_only=True)
+    owner_id = OwnerSerializer(read_only=True)
     images = ImagesSerializer(many=True, source='imageInfrastructure')
     photo = EmptyBase64ImageField(required=False)
 

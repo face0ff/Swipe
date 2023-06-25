@@ -11,6 +11,7 @@ from infrastructures_app.serializers import *
 from user_app.permissions import IsManager, IsManagerOrOwner, IsUser, IsOwnerNew
 
 
+
 # Create your views here.
 @extend_schema(tags=['Corp'])
 class CorpViewSet(viewsets.ModelViewSet):
@@ -25,6 +26,7 @@ class CorpList(ListAPIView):
     http_method_names = ['get']
     serializer_class = CorpSerializer
     permission_classes = (IsManagerOrOwner,)
+
 
     def get_queryset(self):
         user = self.request.user

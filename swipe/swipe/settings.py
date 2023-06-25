@@ -150,6 +150,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ),
 
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # Количество элементов на одной странице
+
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -239,13 +242,3 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
-
-ENUM_NAME_OVERRIDES = {
-    'FilterStatusEnum': 'UniqueFilterStatusEnum',
-    'FilterQuantityEnum': 'UniqueFilterQuantityEnum',
-    'FilterPaymentEnum': 'UniqueFilterPaymentEnum',
-    'FilterStateEnum': 'UniqueFilterStateEnum',
-    'StatusEnum': 'UniqueStatusEnum',
-    'ElectricityEnum': 'UniqueElectricityEnum',
-    'InfrastructureSewageEnum': 'UniqueInfrastructureSewageEnum',
-}
