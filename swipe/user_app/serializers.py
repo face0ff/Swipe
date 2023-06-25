@@ -111,6 +111,10 @@ class UserAdminSerializer(serializers.ModelSerializer):
                 password=hashed_password,
                 role=validated_data['role'],
             )
+            if validated_data['role'] == 'owner':
+                infrastructure = Infrastructure.objects.create(owner_id=user)
+                infrastructure.save()
+
             email = EmailAddress.objects.create(
                 user_id=user.id,
                 email=user.email,
