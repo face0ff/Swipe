@@ -126,7 +126,10 @@ class ApartmentViewSet(PsqMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False, url_name='my', serializer_class=ApartmentSerializer)
     def my_apartment(self, request):
-        queryset = Apartment.objects.filter(user_id=self.request.user.id)
+        if request.user.role == 'user':
+            queryset = Apartment.objects.filter(user_id=self.request.user.id)
+        else:
+            queryset = Apartment.objects.filter(infrastructure_id__owner_id=self.request.user.id, accept=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

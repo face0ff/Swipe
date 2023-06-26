@@ -100,7 +100,6 @@ class UserAdminSerializer(serializers.ModelSerializer):
         fields = ('email', 'password', 'role')
 
     def create(self, validated_data):
-        print(self.validated_data)
         is_admin = self.context['request'].user.is_staff
         if is_admin:
             password = validated_data['password']
@@ -123,6 +122,14 @@ class UserAdminSerializer(serializers.ModelSerializer):
             )
             return user
 
+    def update(self, instance, validated_data):
+        password = validated_data.get('password')
+        is_admin = self.context['request'].user.is_staff
+        if is_admin:
+            hashed_password = make_password(password)
+            validated_data['password'] = hashed_password
+        instance = super().update(instance, validated_data)
+        return instance
 
 class BaseUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
