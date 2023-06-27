@@ -38,6 +38,7 @@ urlpatterns = [
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('api/auth/registration/verify-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
+    path('api/auth/confirm-email/<str:key>/', verification_success, name='verification_success'),
     path('api/auth/', include('allauth.urls')),
 
     path('api/v1/', include(router.urls)),

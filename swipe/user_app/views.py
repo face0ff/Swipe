@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.shortcuts import render
 from drf_psq import Rule, PsqMixin
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, viewsets, status
@@ -210,3 +211,7 @@ class FavoriteInfrastructureViewSet(viewsets.ModelViewSet):
         queryset = UserFavoriteInfrastructure.objects.filter(user_id=self.request.user)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+def verification_success(request, key):
+    return render(request, 'verification_success.html')
