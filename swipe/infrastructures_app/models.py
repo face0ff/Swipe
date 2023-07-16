@@ -109,8 +109,8 @@ class Apartment(models.Model):
         ('penthouse', 'Пентхаус')
     )
     plane = models.CharField('Планировка', choices=PLANE_CHOICE, max_length=20, default='open')
-    area = models.DecimalField('Площадь', decimal_places=1, max_digits=3, null=True)
-    kitchen_area = models.DecimalField('Площадь кухни', decimal_places=1, max_digits=3, null=True)
+    area = models.DecimalField('Площадь', decimal_places=1, max_digits=10, null=True)
+    kitchen_area = models.DecimalField('Площадь кухни', decimal_places=1, max_digits=10, null=True)
     BALCONY_CHOICE = (
         ('yes', 'Да'),
         ('not', 'Нет')

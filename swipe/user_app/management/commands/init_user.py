@@ -1,6 +1,6 @@
-from django.contrib.auth.hashers import make_password
+from allauth.account.models import EmailAddress
 from django.core.management.base import BaseCommand
-
+from infrastructures_app.models import Infrastructure
 from user_app.models import User
 
 
@@ -11,11 +11,18 @@ class Command(BaseCommand):
             email = 'owner@example.com'
             username = 'owner@example.com'
             password = 'owner'
-            hashed_password = make_password(password)
             role = 'owner'
-            user = User.objects.create_superuser(email=email, username=username, password=hashed_password, role=role)
+            user = User.objects.create_superuser(email=email, username=username, password=password, role=role)
             infrastructure = Infrastructure.objects.create(owner_id=user)
             infrastructure.save()
+            user.save()
+            email = EmailAddress.objects.create(
+                user_id=user.id,
+                email=user.email,
+                verified=True,
+                primary=True
+            )
+            print('go')
         else:
             print('Owner Готовченко')
 
@@ -23,9 +30,15 @@ class Command(BaseCommand):
             email = 'user@example.com'
             username = 'user@example.com'
             password = 'user'
-            hashed_password = make_password(password)
             role = 'user'
-            User.objects.create_superuser(email=email, username=username, password=hashed_password, role=role)
+            user = User.objects.create_superuser(email=email, username=username, password=password, role=role)
+            email = EmailAddress.objects.create(
+                user_id=user.id,
+                email=user.email,
+                verified=True,
+                primary=True
+            )
+            print('go')
         else:
             print('User Готовченко')
 
@@ -33,8 +46,14 @@ class Command(BaseCommand):
             email = 'manager@example.com'
             username = 'manager@example.com'
             password = 'manager'
-            hashed_password = make_password(password)
             role = 'manager'
-            User.objects.create_superuser(email=email, username=username, password=hashed_password, role=role)
+            user = User.objects.create_superuser(email=email, username=username, password=password, role=role)
+            email = EmailAddress.objects.create(
+                user_id=user.id,
+                email=user.email,
+                verified=True,
+                primary=True
+            )
+            print('go')
         else:
             print('Manager Готовченко')
